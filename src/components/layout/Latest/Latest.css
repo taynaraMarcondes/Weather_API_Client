@@ -1,0 +1,11 @@
+.size0 {
+  font-size: 0.8rem;
+}
+
+.text-default {
+  font-size: 1rem;
+  font-weight: normal;
+  font-style: italic;
+  color: #fff;
+  text-shadow: 2px 1px rgba(50, 50, 70, 0.5);
+}
