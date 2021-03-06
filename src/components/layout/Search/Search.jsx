@@ -1,44 +1,77 @@
-import "./Search.css"
-import '../../../Theme.css'
-import React, { useState } from "react"
-import axios from "axios"
-import { Row, Col } from "reactstrap"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faSearch } from "@fortawesome/free-solid-svg-icons"
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Row, Col } from "reactstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
+
+import "../../../Theme.scss";
+import "./Search.scss";
 
 const Search = (props) => {
-  const [query, setQuery] = useState("")
-  const [setWeather] = useState({})
+  const [query, setQuery] = useState("");
 
-  const setHistory = (data) => {
-    let city = data.name + ", " + data.sys.country
-    let cities =
-      localStorage.getItem("cities") != null
-        ? JSON.parse(localStorage.getItem("cities"))
-        : []
+  const getData = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/weather`
+      );
 
-    if (cities.length === 3) cities.shift()
+      if (response.status === 200) {
+        const latestSearches = response.data?.data?.latestSearches;
+        const popularSearches = response.data?.data?.popularSearches;
 
-    cities.push(city)
+        console.log("popularSearches", popularSearches);
 
-    localStorage.setItem("cities", JSON.stringify(cities))
-  }
-
-  const search = (e) => {
-    if (e.key === "Enter" || e === "btn") {
-      axios
-        .get(
-          `api.openweathermap.org/data/2.5/weather?q=${query}&units=metric&appid=${process.env.REACT_APP_API_KEY}`
-        )
-        .then((res) => res.json())
-        .then((result) => {
-          setWeather(result)
-          setHistory(result)
-          setQuery("")
-          // console.log(result);
-        })
+        props?.latestSearches(latestSearches);
+        props?.popularSearches(popularSearches);
+      } else {
+        throw response.data;
+      }
+    } catch (e) {
+      console.error(e);
     }
-  }
+  };
+
+  const persistData = async (data) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/weather/${data.name}`,
+        { data: data }
+      );
+
+      if (response.status !== 200) {
+        throw response.data;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const search = async (e) => {
+    if (e.key === "Enter" || e === "btn") {
+      try {
+        const response = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?q=${query}&units=metric&appid=${process.env.REACT_APP_API_KEY}`
+        );
+
+        if (response.status === 200) {
+          props?.onSubmit(response?.data);
+
+          // send data to database
+          persistData(response.data);
+        } else {
+          throw response.data;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
     <>
@@ -63,7 +96,7 @@ const Search = (props) => {
         </Col>
       </Row>
     </>
-  )
-}
+  );
+};
 
-export default Search
+export default Search;

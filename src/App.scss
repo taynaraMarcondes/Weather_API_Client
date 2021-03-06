@@ -17,15 +17,16 @@
   min-height: 100vh;
   background-image: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.2) 60%,
-    rgba(0, 0, 0, 0.4)
+    rgba(0, 0, 0, 0.6) 30%,
+    rgba(0, 0, 0, 0.2)
   );
+  backdrop-filter: blur(5px);
 }
 
 .title {
   color: rgba(255, 255, 255, 1);
   font-weight: bold;
-  text-shadow: 5px 5px 1px rgba(0, 0, 0, 0.8);
+  text-shadow: 5px 5px 4px rgba(0, 0, 0, 0.7);
 }
 
 .size2 {
